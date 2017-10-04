@@ -1,10 +1,10 @@
 # Backend
 
-This folder contains the source code and configuration to build the backend.
+This folder contains the source code and configuration to run the backend.
 
 ## Prerequisites
 
-The dependencies of this package must be installed to test or build.
+The dependencies of this package must be installed to be run.
 ```bash
 npm install
 ```
