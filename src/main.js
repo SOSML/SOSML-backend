@@ -132,17 +132,6 @@ server.post('/api/fallback/', callDockerLimiter,
     }
 );
 
-server.post('/api/validate/', callDockerLimiter,
-    function (request, response) {
-        const payload = request.body.code;
-        const name = request.body.name;
-        readFile("./code/validate/" + name, function (data) {
-            evalSMLCode(payload + data, response);
-        });
-    }
-);
-
-
 server.put('/api/share/', callDockerLimiter,
     function (request, response) {
         const payload = request.body.code;
@@ -162,19 +151,6 @@ server.get('/api/share/:code',
     function (request, response) {
         const code = request.params.code;
         outputFile("./code/shares/" + code + ".sml", response);
-    }
-);
-
-server.get('/api/tests/',
-    function (request, response) {
-        listDir('./code/tests/', response);
-    }
-);
-
-server.get('/tests/:code',
-    function (request, response) {
-        const code = request.params.code;
-        outputFile("./code/tests/" + code + ".sml", response);
     }
 );
 
