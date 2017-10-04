@@ -1,5 +1,5 @@
 {
-  "name": "sosml-interpreter",
+  "name": "sosml-backend",
   "version": "1.0.0",
   "description": "",
   "scripts": {
@@ -13,7 +13,7 @@
     "production-start": "node src/main.js"
   },
   "author": "SOSML Team",
-  "license": "UNLICENSED",
+  "license": "GPL-3.0",
   "devDependencies": {
     "@types/jest": "^19.2.3",
     "@types/node": "^7.0.22",
@@ -41,7 +41,6 @@
     "compression": "^1.6.2",
     "express": "^4.15.3",
     "express-rate-limit": "^2.8.0",
-    "hapi": "^16.4.3",
     "helmet": "^3.6.1",
     "node-cmd": "^3.0.0"
   }
