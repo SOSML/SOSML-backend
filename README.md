@@ -11,5 +11,7 @@ npm install
 
 Just start it via:
 ```bash
-node src/main.js
+npm run start
 ```
+
+This will start a server listening on port 8000, serving `code/examples` as examples and `code/shares` the folder the files are shared to.
