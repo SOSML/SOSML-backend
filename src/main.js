@@ -7,10 +7,17 @@ const helmet = require('helmet');
 const compression = require('compression');
 const fs = require('fs');
 const crypto = require('crypto');
-const bodyParser = require('body-parser')
+const bodyParser = require('body-parser');
+const RateLimit = require('express-rate-limit');
 
+var limiter = new RateLimit({
+    windowMs: 60*1000, // 1 minute
+    max: 12, // limit each IP to 12 requests per windowMs
+    delayMs: 0 // disable delaying - full speed until the max limit is reached
+});
 
 const server = express();
+server.enable('trust proxy');
 server.use(helmet())
 server.use(compression())
 server.use(bodyParser.json({ limit: '5mb' }));
@@ -41,7 +48,7 @@ function listDir(name, response) {
     });
 }
 
-server.put('/api/share/', 
+server.put('/api/share/', limiter, 
     function (request, response) {
         const payload = request.body.code;
         const hash = crypto.createHash('md5').update(payload).digest("hex");
