@@ -21,7 +21,7 @@ server.enable('trust proxy');
 server.use(helmet())
 server.use(compression())
 server.use(bodyParser.json({ limit: '5mb' }));
-server.use('/static/', express.static('../frontend/build/static'));
+server.use('/static/', express.static('SOSML-frontend/frontend/build/static'));
 // server.use('/share/', express.static('shares'));
 // server.use('/code/', express.static('code'));
 
@@ -84,27 +84,27 @@ server.get('/code/:code',
 );
 
 server.get('/interpreter.js', function (request, response) {
-    response.sendFile(path.resolve('../frontend/build/interpreter.js'));
+    response.sendFile(path.resolve('SOSML-frontend/frontend/build/interpreter.js'));
 });
 
 server.get('/webworker.js', function (request, response) {
-    response.sendFile(path.resolve('../frontend/build/webworker.js'));
+    response.sendFile(path.resolve('SOSML-frontend/frontend/build/webworker.js'));
 });
 
 server.get('/logo.png', function (request, response) {
-    response.sendFile(path.resolve('../frontend/build/logo.png'));
+    response.sendFile(path.resolve('SOSML-frontend/frontend/build/logo.png'));
 });
 
 server.get('/favicon.png', function (request, response) {
-    response.sendFile(path.resolve('../frontend/build/favicon.png'));
+    response.sendFile(path.resolve('SOSML-frontend/frontend/build/favicon.png'));
 });
 
 server.get('/', function (request, response) {
-    response.sendFile(path.resolve('../frontend/build/index.html'));
+    response.sendFile(path.resolve('SOSML-frontend/frontend/build/index.html'));
 });
 
 server.use(function (request, response) {
-    response.sendFile(path.resolve('../frontend/build/index.html'));
+    response.sendFile(path.resolve('SOSML-frontend/frontend/build/index.html'));
 });
 
 server.listen(8000, function () {

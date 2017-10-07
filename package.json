@@ -1,7 +1,11 @@
 {
   "name": "sosml-backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "A simple server to fulfill all your SOSML needs",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SOSML/SOSML-backend.git"
+  },
   "scripts": {
     "start": "node src/main.js"
   },
