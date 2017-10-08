@@ -1,5 +1,13 @@
 'use strict';
 
+const serveSharing = true; // determines if sharing is enabled on this server
+const sharePath = "code/shares/"; // the path the shared files are placed into
+const serveExamples = true; // determines if any examples are served from this server
+const examplePath = "code/examples/"; // the path the provided examples are placed into
+const serveFrontend = true; // determines if the frontend is being served from this server
+const frontendPath = "SOSML-frontend/frontend/build"; // the path the frontend is served from 
+const port = 8000; // the port the server is listening to
+
 const express = require('express');
 const bodyparser = require('body-parser');
 const path = require('path');
@@ -49,64 +57,104 @@ function listDir(name, response) {
 }
 
 server.put('/api/share/', limiter, 
-    function (request, response) {
-        const payload = request.body.code;
-        const hash = crypto.createHash('md5').update(payload).digest("hex");
-        fs.writeFile("./code/shares/" + hash + ".sml", payload, function (err) {
-            if (err) {
-                return console.log(err);
-            }
-            console.log("The file was saved!");
-            response.set('Content-Type', 'text/plain');
-            response.end(hash);
-        });
+    function (request, response, next) {
+        if (serveSharing) {
+            const payload = request.body.code;
+            const hash = crypto.createHash('md5').update(payload).digest("hex");
+            fs.writeFile(sharePath + hash + ".sml", payload, function (err) {
+                if (err) {
+                    return console.log(err);
+                }
+                console.log("A file with hash " + hash + " was saved");
+                response.set('Content-Type', 'text/plain');
+                response.end(hash);
+            });
+        } else {
+            next();
+        }
     }
 );
 
 server.get('/api/share/:code',
-    function (request, response) {
-        const code = request.params.code;
-        outputFile("./code/shares/" + code + ".sml", response);
+    function (request, response, next) {
+        if (serveSharing) {
+            const code = request.params.code;
+            outputFile(sharePath + code + ".sml", response);
+        } else {
+            next();
+        }
     }
 );
 
 server.get('/api/list/',
-    function (request, response) {
-        listDir('./code/examples/', response);
+    function (request, response, next) {
+        if (serveExamples) {
+            listDir(examplePath, response);
+        } else {
+            next();
+        }
     }
 );
 
 server.get('/code/:code',
-    function (request, response) {
-        const code = request.params.code;
-        outputFile("./code/examples/" + code + ".sml", response);
+    function (request, response, next) {
+        if (serveExamples) {
+            const code = request.params.code;
+            outputFile(examplePath + code + ".sml", response);
+        } else {
+            next();
+        }
     }
 );
 
-server.get('/interpreter.js', function (request, response) {
-    response.sendFile(path.resolve('SOSML-frontend/frontend/build/interpreter.js'));
+server.get('/interpreter.js', function (request, response, next) {
+    if (serveFrontend) {
+        response.sendFile(path.resolve(frontendPath + '/interpreter.js'));
+    } else {
+        next();
+    }
 });
 
-server.get('/webworker.js', function (request, response) {
-    response.sendFile(path.resolve('SOSML-frontend/frontend/build/webworker.js'));
+server.get('/webworker.js', function (request, response, next) {
+    if (serveFrontend) {
+        response.sendFile(path.resolve(frontendPath + '/webworker.js'));
+    } else {
+        next();
+    }
 });
 
-server.get('/logo.png', function (request, response) {
-    response.sendFile(path.resolve('SOSML-frontend/frontend/build/logo.png'));
+server.get('/logo.png', function (request, response, next) {
+    if (serveFrontend) {
+        response.sendFile(path.resolve(frontendPath + '/logo.png'));
+    } else {
+        next();
+    }
 });
 
-server.get('/favicon.png', function (request, response) {
-    response.sendFile(path.resolve('SOSML-frontend/frontend/build/favicon.png'));
+server.get('/favicon.png', function (request, response, next) {
+    if (serveFrontend) {
+        response.sendFile(path.resolve(frontendPath + '/favicon.png'));
+    } else {
+        next();
+    }
 });
 
-server.get('/', function (request, response) {
-    response.sendFile(path.resolve('SOSML-frontend/frontend/build/index.html'));
+server.get('/', function (request, response, next) {
+    if (serveFrontend) {
+        response.sendFile(path.resolve(frontendPath + '/index.html'));
+    } else {
+        next();
+    }
 });
 
-server.use(function (request, response) {
-    response.sendFile(path.resolve('SOSML-frontend/frontend/build/index.html'));
+server.use(function (request, response, next) {
+    if (serveFrontend) {
+        response.sendFile(path.resolve(frontendPath + '/index.html'));
+    } else {
+        next();
+    }
 });
 
-server.listen(8000, function () {
-    console.log('yay');
+server.listen(port, function () {
+    console.log('server started');
 });
