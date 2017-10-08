@@ -107,6 +107,18 @@ server.get('/code/:code',
     }
 );
 
+server.use('/api',
+    function (request, response) {
+        response.sendStatus(404);
+    }
+)
+
+server.use('/code',
+    function (request, response) {
+        response.sendStatus(404);
+    }
+)
+
 server.get('/interpreter.js', function (request, response, next) {
     if (serveFrontend) {
         response.sendFile(path.resolve(frontendPath + '/interpreter.js'));
