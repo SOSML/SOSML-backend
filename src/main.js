@@ -1,18 +1,5 @@
 'use strict';
 
-const serveSharing = true; // determines if sharing is enabled on this server
-const sharePath = "code/shares/"; // the path the shared files are placed into
-const shareLimits = {
-    windowMs: 60*1000, // time window, in which IPs are being tracked in ms
-    max: 12, // the amount of allowed requests per time window
-    delayMs: 0 // minimum timeout between requests
-};
-const serveExamples = true; // determines if any examples are served from this server
-const examplePath = "code/examples/"; // the path the provided examples are placed into
-const serveFrontend = true; // determines if the frontend is being served from this server
-const frontendPath = "SOSML-frontend/frontend/build"; // the path the frontend is served from 
-const port = 8000; // the port the server is listening to
-
 const express = require('express');
 const bodyparser = require('body-parser');
 const path = require('path');
@@ -22,8 +9,9 @@ const fs = require('fs');
 const crypto = require('crypto');
 const bodyParser = require('body-parser');
 const RateLimit = require('express-rate-limit');
+const config = require(__dirname+'/../config.js');
 
-var limiter = new RateLimit(shareLimits);
+var limiter = new RateLimit(config.shareLimits);
 
 const server = express();
 server.enable('trust proxy');
@@ -59,10 +47,10 @@ function listDir(name, response) {
 
 server.put('/api/share/', limiter, 
     function (request, response, next) {
-        if (serveSharing) {
+        if (config.serveSharing) {
             const payload = request.body.code;
             const hash = crypto.createHash('md5').update(payload).digest("hex");
-            fs.writeFile(sharePath + hash + ".sml", payload, function (err) {
+            fs.writeFile(config.sharePath + hash + ".sml", payload, function (err) {
                 if (err) {
                     return console.log(err);
                 }
@@ -78,10 +66,10 @@ server.put('/api/share/', limiter,
 
 server.get('/api/share/:code',
     function (request, response, next) {
-        if (serveSharing) {
+        if (config.serveSharing) {
             const code = request.params.code;
             if (/^[\d\w]+$/g.test(code)) {
-                outputFile(sharePath + code + ".sml", response);
+                outputFile(config.sharePath + code + ".sml", response);
             } else {
                 response.sendStatus(400);
             }
@@ -93,8 +81,8 @@ server.get('/api/share/:code',
 
 server.get('/api/list/',
     function (request, response, next) {
-        if (serveExamples) {
-            listDir(examplePath, response);
+        if (config.serveExamples) {
+            listDir(config.examplePath, response);
         } else {
             next();
         }
@@ -103,10 +91,10 @@ server.get('/api/list/',
 
 server.get('/code/:code',
     function (request, response, next) {
-        if (serveExamples) {
+        if (config.serveExamples) {
             const code = request.params.code;
             if (/^[\d\w](\/[\d\w]+|.[\d\w]+|[\d\w])*$/g.test(code)) {
-                outputFile(examplePath + code + ".sml", response);
+                outputFile(config.examplePath + code + ".sml", response);
             } else {
                 response.sendStatus(400);
             }
@@ -129,53 +117,53 @@ server.use('/code',
 )
 
 server.get('/interpreter.js', function (request, response, next) {
-    if (serveFrontend) {
-        response.sendFile(path.resolve(frontendPath + '/interpreter.js'));
+    if (config.serveFrontend) {
+        response.sendFile(path.resolve(config.frontendPath + '/interpreter.js'));
     } else {
         next();
     }
 });
 
 server.get('/webworker.js', function (request, response, next) {
-    if (serveFrontend) {
-        response.sendFile(path.resolve(frontendPath + '/webworker.js'));
+    if (config.serveFrontend) {
+        response.sendFile(path.resolve(config.frontendPath + '/webworker.js'));
     } else {
         next();
     }
 });
 
 server.get('/logo.png', function (request, response, next) {
-    if (serveFrontend) {
-        response.sendFile(path.resolve(frontendPath + '/logo.png'));
+    if (config.serveFrontend) {
+        response.sendFile(path.resolve(config.frontendPath + '/logo.png'));
     } else {
         next();
     }
 });
 
 server.get('/favicon.png', function (request, response, next) {
-    if (serveFrontend) {
-        response.sendFile(path.resolve(frontendPath + '/favicon.png'));
+    if (config.serveFrontend) {
+        response.sendFile(path.resolve(config.frontendPath + '/favicon.png'));
     } else {
         next();
     }
 });
 
 server.get('/', function (request, response, next) {
-    if (serveFrontend) {
-        response.sendFile(path.resolve(frontendPath + '/index.html'));
+    if (config.serveFrontend) {
+        response.sendFile(path.resolve(config.frontendPath + '/index.html'));
     } else {
         next();
     }
 });
 
 server.use(function (request, response, next) {
-    if (serveFrontend) {
-        response.sendFile(path.resolve(frontendPath + '/index.html'));
+    if (config.serveFrontend) {
+        response.sendFile(path.resolve(config.frontendPath + '/index.html'));
     } else {
         next();
     }
 });
 
-server.listen(port, function () {
+server.listen(config.port, function () {
     console.log('server started');
 });
