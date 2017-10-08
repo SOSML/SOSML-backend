@@ -2,6 +2,11 @@
 
 const serveSharing = true; // determines if sharing is enabled on this server
 const sharePath = "code/shares/"; // the path the shared files are placed into
+const shareLimits = {
+    windowMs: 60*1000, // time window, in which IPs are being tracked in ms
+    max: 12, // the amount of allowed requests per time window
+    delayMs: 0 // minimum timeout between requests
+};
 const serveExamples = true; // determines if any examples are served from this server
 const examplePath = "code/examples/"; // the path the provided examples are placed into
 const serveFrontend = true; // determines if the frontend is being served from this server
@@ -18,11 +23,7 @@ const crypto = require('crypto');
 const bodyParser = require('body-parser');
 const RateLimit = require('express-rate-limit');
 
-var limiter = new RateLimit({
-    windowMs: 60*1000, // 1 minute
-    max: 12, // limit each IP to 12 requests per windowMs
-    delayMs: 0 // disable delaying - full speed until the max limit is reached
-});
+var limiter = new RateLimit(shareLimits);
 
 const server = express();
 server.enable('trust proxy');
@@ -79,7 +80,11 @@ server.get('/api/share/:code',
     function (request, response, next) {
         if (serveSharing) {
             const code = request.params.code;
-            outputFile(sharePath + code + ".sml", response);
+            if (/^[\d\w]+$/g.test(code)) {
+                outputFile(sharePath + code + ".sml", response);
+            } else {
+                response.sendStatus(400);
+            }
         } else {
             next();
         }
@@ -100,7 +105,11 @@ server.get('/code/:code',
     function (request, response, next) {
         if (serveExamples) {
             const code = request.params.code;
-            outputFile(examplePath + code + ".sml", response);
+            if (/^[\d\w](\/[\d\w]+|.[\d\w]+|[\d\w])*$/g.test(code)) {
+                outputFile(examplePath + code + ".sml", response);
+            } else {
+                response.sendStatus(400);
+            }
         } else {
             next();
         }
