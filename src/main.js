@@ -5,11 +5,11 @@ const bodyparser = require('body-parser');
 const path = require('path');
 const helmet = require('helmet');
 const compression = require('compression');
-const fs = require('fs');
-const crypto = require('crypto');
+const fs = require('fs'); // Needed to save and read files from the system
+const crypto = require('crypto'); // Needed for hashing the sent code
 const bodyParser = require('body-parser');
-const RateLimit = require('express-rate-limit');
-const config = require(__dirname+'/../config.js');
+const RateLimit = require('express-rate-limit'); // This module helps limiting excessive access to the APIs
+const config = require(__dirname+'/../config.js'); // This loads the configuration file
 
 var limiter = new RateLimit(config.shareLimits);
 
@@ -45,10 +45,17 @@ function listDir(name, response) {
     });
 }
 
+// The first server calls, that matches will be executed
+// In this path handles the uploaded code. The 'limiter' limits the how many API accesses per minute can be done per IP
 server.put('/api/share/', limiter, 
+    // 'request' is the from the client sent http request
+    // 'response' is the answer from this server, which is still to be edited
+    // 'next' can be called so the rest of the function is skipped
     function (request, response, next) {
+        // making sure sharing is enabled
         if (config.serveSharing) {
             const payload = request.body.code;
+            // The sent code is hashed, so it can get stored on the server
             const hash = crypto.createHash('sha256').update(payload).digest("hex");
             if (fs.existsSync(config.sharePath + hash + ".sml")) {
                 response.set('Content-Type', 'text/plain');
