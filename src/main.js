@@ -49,7 +49,7 @@ server.put('/api/share/', limiter,
     function (request, response, next) {
         if (config.serveSharing) {
             const payload = request.body.code;
-            const hash = crypto.createHash('md5').update(payload).digest("hex");
+            const hash = crypto.createHash('sha256').update(payload).digest("hex");
             fs.writeFile(config.sharePath + hash + ".sml", payload, function (err) {
                 if (err) {
                     return console.log(err);
