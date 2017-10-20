@@ -50,6 +50,11 @@ server.put('/api/share/', limiter,
         if (config.serveSharing) {
             const payload = request.body.code;
             const hash = crypto.createHash('sha256').update(payload).digest("hex");
+            if (fs.existsSync(config.sharePath + hash + ".sml")) {
+                response.set('Content-Type', 'text/plain');
+                response.end(hash);
+                return;
+            }
             fs.writeFile(config.sharePath + hash + ".sml", payload, function (err) {
                 if (err) {
                     return console.log(err);
@@ -60,6 +65,7 @@ server.put('/api/share/', limiter,
             });
         } else {
             next();
+            return;
         }
     }
 );
@@ -75,6 +81,7 @@ server.get('/api/share/:code',
             }
         } else {
             next();
+            return;
         }
     }
 );
@@ -85,6 +92,7 @@ server.get('/api/list/',
             listDir(config.examplePath, response);
         } else {
             next();
+            return;
         }
     }
 );
@@ -100,6 +108,7 @@ server.get('/code/:code',
             }
         } else {
             next();
+            return;
         }
     }
 );
@@ -121,6 +130,7 @@ server.get('/interpreter.js', function (request, response, next) {
         response.sendFile(path.resolve(config.frontendPath + '/interpreter.js'));
     } else {
         next();
+        return;
     }
 });
 
@@ -129,6 +139,7 @@ server.get('/webworker.js', function (request, response, next) {
         response.sendFile(path.resolve(config.frontendPath + '/webworker.js'));
     } else {
         next();
+        return;
     }
 });
 
@@ -137,6 +148,7 @@ server.get('/logo.png', function (request, response, next) {
         response.sendFile(path.resolve(config.frontendPath + '/logo.png'));
     } else {
         next();
+        return;
     }
 });
 
@@ -145,6 +157,7 @@ server.get('/favicon.png', function (request, response, next) {
         response.sendFile(path.resolve(config.frontendPath + '/favicon.png'));
     } else {
         next();
+        return;
     }
 });
 
@@ -153,6 +166,7 @@ server.get('/', function (request, response, next) {
         response.sendFile(path.resolve(config.frontendPath + '/index.html'));
     } else {
         next();
+        return;
     }
 });
 
@@ -161,6 +175,7 @@ server.use(function (request, response, next) {
         response.sendFile(path.resolve(config.frontendPath + '/index.html'));
     } else {
         next();
+        return;
     }
 });
 

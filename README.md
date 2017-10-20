@@ -15,4 +15,4 @@ npm run start
 ```
 
 For more information and settings look into `config.js`
-If your want to serve the frontend with this make shure it is cloned, prepared and built into the submodule.
+If your want to serve the frontend with this make sure it is cloned, prepared and built into the submodule.
