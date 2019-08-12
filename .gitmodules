@@ -1,3 +1,4 @@
 [submodule "SOSML-frontend"]
 	path = SOSML-frontend
-	url = https://github.com/SOSML/SOSML-frontend.git
+    url = https://github.com/SOSML/SOSML-frontend.git
+    branch = exp
