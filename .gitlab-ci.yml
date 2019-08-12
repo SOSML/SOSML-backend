@@ -1,0 +1,157 @@
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+
+
+stages:
+  - dependencies
+  - modules
+  - build
+  - deploy
+
+
+interpreter-dependencies:
+  stage: dependencies
+  image: node:lts
+  script:
+    - cd SOSML-frontend/submodules/interpreter && npm ci
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - SOSML-frontend/submodules/interpreter/node_modules
+
+
+webworker-dependencies:
+  stage: dependencies
+  image: node:lts
+  script:
+    - cd SOSML-frontend/submodules/webworker && npm ci
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - SOSML-frontend/submodules/webworker/node_modules
+
+
+frontend-dependencies:
+  stage: dependencies
+  image: node:lts
+  script:
+    - cd SOSML-frontend/frontend && npm ci
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - SOSML-frontend/frontend/node_modules
+
+
+backend-dependencies:
+  stage: dependencies
+  image: node:lts
+  script:
+    - npm ci
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - node_modules
+
+
+build-interpreter:
+  stage: modules
+  image: node:lts
+  script:
+    - cd SOSML-frontend/submodules/interpreter && npm run dist
+  dependencies:
+    - interpreter-dependencies
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - SOSML-frontend/submodules/interpreter/build/interpreter.min.js
+
+
+build-webworker:
+  stage: modules
+  image: node:lts
+  script:
+    - cd SOSML-frontend/submodules/webworker && npm run build
+  dependencies:
+    - webworker-dependencies
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - SOSML-frontend/submodules/webworker/build/webworker.js
+
+
+build-frontend:
+  stage: build
+  image: node:lts
+  script:
+    - cp SOSML-frontend/submodules/interpreter/build/interpreter.min.js SOSML-frontend/frontend/public/interpreter.js
+    - cp SOSML-frontend/submodules/webworker/build/webworker.js SOSML-frontend/frontend/public/webworker.js
+    - cd SOSML-frontend/frontend && npm run build
+  dependencies:
+    - build-interpreter
+    - build-webworker
+    - frontend-dependencies
+  artifacts:
+    expire_in: 2 weeks
+    paths:
+      - SOSML-frontend/frontend/build/
+      - SOSML-frontend/frontend/public/
+
+
+.deploy-web: &deploy-web
+  stage: deploy
+  image: udsdepend/gitlab-ssh-deploy
+  tags:
+    - secret
+  variables:
+    GIT_STRATEGY: none
+  dependencies:
+    - build-frontend
+
+
+deploy-web-master:
+  <<: *deploy-web
+  only:
+    - master@sosml/backend
+  script:
+    - /ssh-deploy.sh './deploy-web.sh master' '~/deploy-cache/web/master' ./deploy-web.sh ./SOSML-frontend/frontend/build/
+  environment:
+    name: development-web
+    url: https://sosml.org/
+
+
+deploy-web-exp:
+  <<: *deploy-web
+  only:
+    - exp@sosml/backend
+  script:
+    - /ssh-deploy.sh './deploy-web.sh exp' '~/deploy-cache/web/exp' ./deploy-web.sh ./SOSML-frontend/frontend/build/
+  environment:
+    name: development-web
+    url: https://exp.sosml.org/
+
+
+deploy-web-dev:
+  <<: *deploy-web
+  only:
+    - dev@sosml/backend
+  script:
+    - /ssh-deploy.sh './deploy-web.sh dev' '~/deploy-cache/web/dev' ./deploy-web.sh ./SOSML-frontend/frontend/build/
+  environment:
+    name: development-web
+    url: https://dev.sosml.org/
+
+
+deploy-server:
+  stage: deploy
+  image: udsdepend/gitlab-ssh-deploy
+  tags:
+    - secret
+  only:
+    - master@sosml/backend
+  dependencies:
+    - backend-dependencies
+  script:
+    - /ssh-deploy.sh './deploy-server.sh' '~/deploy-cache/server' ./deploy-server.sh ./src config.js ./node_modules
+  environment:
+    name: production-server
+    url: https://pseuCo.com/api/
