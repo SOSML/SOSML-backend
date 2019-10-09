@@ -102,8 +102,6 @@ build-frontend:
   image: udsdepend/gitlab-ssh-deploy
   tags:
     - secret
-  variables:
-    GIT_STRATEGY: none
   dependencies:
     - build-frontend
 
