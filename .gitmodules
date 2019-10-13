@@ -2,3 +2,9 @@
 	path = SOSML-frontend
     url = https://github.com/SOSML/SOSML-frontend.git
     branch = dev
+[submodule "SOSML"]
+	path = SOSML
+	url = https://github.com/SOSML/SOSML.git
+[submodule "SOSML-webworker"]
+	path = SOSML-webworker
+	url = https://github.com/SOSML/SOSML-webworker.git
