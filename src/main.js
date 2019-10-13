@@ -38,16 +38,40 @@ function outputFile(name, response) {
     });
 }
 
-function listDir(name, response) {
-    fs.readdir(name, function (err, items) {
-        response.set('Content-Type', 'text/json');
-        response.end(JSON.stringify({codes: items}));
+function listDir(dir, prefix, response) {
+    var results = [];
+    fs.readdir(dir,  function (err, items) {
+        if (err) {
+            response(err);
+        }
+        var pending = items.length;
+        if (!pending) {
+            response(null, results);
+        }
+        items.forEach(function(file) {
+            file = path.resolve(dir, file);
+            fs.stat(file, function(err, stat) {
+                if (stat && stat.isDirectory()) {
+                    listDir(file, prefix, function(err, res) {
+                        results = results.concat(res);
+                        if (!--pending) {
+                            response(null, results);
+                        }
+                    });
+                } else {
+                    results.push(file.substr(prefix.length));
+                    if (!--pending) {
+                        response(null, results);
+                    }
+                }
+            });
+        });
     });
 }
 
-// The first server calls, that matches will be executed
+// The first server call that matches will be executed
 // In this path handles the uploaded code. The 'limiter' limits the how many API accesses per minute can be done per IP
-server.put('/api/share/', limiter, 
+server.put('/api/share/', limiter,
     // 'request' is the from the client sent http request
     // 'response' is the answer from this server, which is still to be edited
     // 'next' can be called so the rest of the function is skipped
@@ -96,7 +120,14 @@ server.get('/api/share/:code',
 server.get('/api/list/',
     function (request, response, next) {
         if (config.serveExamples) {
-            listDir(config.examplePath, response);
+            listDir(config.examplePath, path.resolve(config.examplePath, '.') + '/',
+                function(err, results) {
+                if (err) {
+                    console.log(err);
+                }
+                response.set('Content-Type', 'text/json');
+                response.end(JSON.stringify({codes: results}));
+            });
         } else {
             next();
             return;
@@ -108,7 +139,8 @@ server.get('/code/:code',
     function (request, response, next) {
         if (config.serveExamples) {
             const code = request.params.code;
-            if (/^[\d\w](\/[\d\w]+|.[\d\w]+|[\d\w])*$/g.test(code)) {
+            console.log('Trying to read file ' + request.params.code);
+            if (/^[\d\w](\/[\d\w\%]+|.[\d\w\%]+|[\d\w\%])*$/g.test(code)) {
                 outputFile(config.examplePath + code + ".sml", response);
             } else {
                 response.sendStatus(400);
