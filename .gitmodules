@@ -5,6 +5,8 @@
 [submodule "SOSML"]
 	path = SOSML
 	url = https://github.com/SOSML/SOSML.git
+    branch = master
 [submodule "SOSML-webworker"]
 	path = SOSML-webworker
 	url = https://github.com/SOSML/SOSML-webworker.git
+    branch = legacy
