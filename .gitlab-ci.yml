@@ -13,22 +13,22 @@ interpreter-dependencies:
   stage: dependencies
   image: node:lts
   script:
-    - cd SOSML-frontend/submodules/interpreter && npm ci
+    - cd SOSML && npm ci
   artifacts:
     expire_in: 1 day
     paths:
-      - SOSML-frontend/submodules/interpreter/node_modules
+      - SOSML/node_modules
 
 
 webworker-dependencies:
   stage: dependencies
   image: node:lts
   script:
-    - cd SOSML-frontend/submodules/webworker && npm ci
+    - cd SOSML-webworker && npm ci
   artifacts:
     expire_in: 1 day
     paths:
-      - SOSML-frontend/submodules/webworker/node_modules
+      - SOSML-webworker/node_modules
 
 
 frontend-dependencies:
@@ -57,34 +57,35 @@ build-interpreter:
   stage: modules
   image: node:lts
   script:
-    - cd SOSML-frontend/submodules/interpreter && npm run dist
+    - cd SOSML && npm run dist
   dependencies:
     - interpreter-dependencies
   artifacts:
     expire_in: 1 day
     paths:
-      - SOSML-frontend/submodules/interpreter/build/interpreter.min.js
+      - SOSML/build/interpreter.min.js
 
 
 build-webworker:
   stage: modules
   image: node:lts
   script:
-    - cd SOSML-frontend/submodules/webworker && npm run build
+    - cd SOSML-webworker && npm run build
   dependencies:
     - webworker-dependencies
   artifacts:
     expire_in: 1 day
     paths:
-      - SOSML-frontend/submodules/webworker/build/webworker.js
+      - SOSML-webworker/build/webworker.js
 
 
 build-frontend:
   stage: build
   image: node:lts
   script:
-    - cp SOSML-frontend/submodules/interpreter/build/interpreter.min.js SOSML-frontend/frontend/public/interpreter.js
-    - cp SOSML-frontend/submodules/webworker/build/webworker.js SOSML-frontend/frontend/public/webworker.js
+    - cp SOSML/build/interpreter.min.js SOSML-frontend/frontend/public/interpreter.js
+    - cp SOSML-webworker/build/webworker.js SOSML-frontend/frontend/public/webworker.js
+    - ./configure.sh
     - cd SOSML-frontend/frontend && npm run build
   dependencies:
     - build-interpreter
@@ -102,8 +103,6 @@ build-frontend:
   image: udsdepend/gitlab-ssh-deploy
   tags:
     - secret
-  variables:
-    GIT_STRATEGY: none
   dependencies:
     - build-frontend
 
