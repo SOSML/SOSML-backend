@@ -85,6 +85,7 @@ build-frontend:
   script:
     - cp SOSML/build/interpreter.min.js SOSML-frontend/frontend/public/interpreter.js
     - cp SOSML-webworker/build/webworker.js SOSML-frontend/frontend/public/webworker.js
+    - ./configure.sh
     - cd SOSML-frontend/frontend && npm run build
   dependencies:
     - build-interpreter
