@@ -1,8 +1,9 @@
-module.exports = {
+const extra_config = require(__dirname+'/extra_config.js');
 
+module.exports = {
     // Sharing options
     // determines if sharing is enabled on this server
-    serveSharing : false,
+    serveSharing : extra_config.SHARING_ENABLED,
     // the path the shared files are placed into
     sharePath : "code/shares/",
     // limit settings for sharing
@@ -17,7 +18,7 @@ module.exports = {
 
     // Code example options
     // determines if any examples are served from this server
-    serveExamples : false,
+    serveExamples : extra_config.SAMPLE_FILES_ENABLED,
     // the path the provided examples are placed into
     examplePath : "code/examples/",
 
