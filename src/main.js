@@ -9,7 +9,8 @@ const fs = require('fs'); // Needed to save and read files from the system
 const crypto = require('crypto'); // Needed for hashing the sent code
 const bodyParser = require('body-parser');
 const RateLimit = require('express-rate-limit'); // This module helps limiting excessive access to the APIs
-const config = require(__dirname+'/../config.js'); // This loads the configuration file
+const config = require(__dirname+'/../config.js');
+const version = require(__dirname+'/version.js');
 
 var limiter = new RateLimit(config.shareLimits);
 
@@ -135,6 +136,17 @@ server.get('/api/list/',
     }
 );
 
+server.get('/api/version/',
+    function (request, response, next) {
+        response.set('Content-Type', 'text/json');
+        response.end(JSON.stringify({
+            branch: version.REF_NAME,
+            commitSha: version.COMMIT_SHA,
+            pipelineId: version.PIPELINE_ID
+        }));
+    }
+);
+
 server.get('/code/:code',
     function (request, response, next) {
         if (config.serveExamples) {
@@ -219,5 +231,12 @@ server.use(function (request, response, next) {
 });
 
 server.listen(config.port, function () {
-    console.log('server started');
+    console.log('==== Server started ====');
+    console.log('- Version ' + version.REF_NAME + '/' + version.COMMIT_SHA
+        + '[' + version.PIPELINE_ID + ']');
+    console.log('- Sharing ' + ( config.serveSharing ? 'enabled, using path'
+        + config.sharePath : 'disabled' ));
+    console.log('- Samples ' + ( config.serveExamples ? 'enabled, using path'
+        + config.examplePath : 'disabled' ));
+    console.log('\n==== Logs ====');
 });
