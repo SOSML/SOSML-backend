@@ -19,7 +19,7 @@ server.enable('trust proxy');
 server.use(helmet())
 server.use(compression())
 server.use(bodyParser.json({ limit: '5mb' }));
-server.use('/', expressStaticGzip('SOSML-frontend/frontend/build', {
+server.use('/static/', expressStaticGzip('SOSML-frontend/frontend/build/static', {
     enableBrotli: true,
     orderPreference: ['br', 'gz'],
     setHeaders: function (res, path) {
