@@ -61,7 +61,6 @@ build-frontend:
     - ./configure.sh
     - cd SOSML-frontend/frontend && npm run build
   dependencies:
-    - build-interpreter
     - build-webworker
     - frontend-dependencies
   artifacts:
