@@ -183,15 +183,6 @@ server.use('/code',
     }
 )
 
-server.get('/interpreter.js', function (request, response, next) {
-    if (config.serveFrontend) {
-        response.sendFile(path.resolve(config.frontendPath + '/interpreter.js'));
-    } else {
-        next();
-        return;
-    }
-});
-
 server.get('/webworker.js', function (request, response, next) {
     if (config.serveFrontend) {
         response.sendFile(path.resolve(config.frontendPath + '/webworker.js'));
