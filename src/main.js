@@ -1,6 +1,7 @@
 'use strict';
 
 const express = require('express');
+const expressStaticGzip = require('express-static-gzip');
 const bodyparser = require('body-parser');
 const path = require('path');
 const helmet = require('helmet');
@@ -19,7 +20,13 @@ server.enable('trust proxy');
 server.use(helmet())
 server.use(compression())
 server.use(bodyParser.json({ limit: '5mb' }));
-server.use('/static/', express.static('SOSML-frontend/frontend/build/static'));
+server.use('/', expressStaticGzip('SOSML-frontend/frontend/build', {
+    enableBrotli: true,
+    orderPreference: ['br', 'gz'],
+    setHeaders: function (res, path) {
+        res.setHeader("Cache-Control", "public, max-age=31536000");
+    }
+}));
 // server.use('/share/', express.static('shares'));
 // server.use('/code/', express.static('code'));
 
@@ -175,15 +182,6 @@ server.use('/code',
         response.sendStatus(404);
     }
 )
-
-server.get('/interpreter.js', function (request, response, next) {
-    if (config.serveFrontend) {
-        response.sendFile(path.resolve(config.frontendPath + '/interpreter.js'));
-    } else {
-        next();
-        return;
-    }
-});
 
 server.get('/webworker.js', function (request, response, next) {
     if (config.serveFrontend) {
