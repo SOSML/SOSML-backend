@@ -8,18 +8,6 @@ stages:
   - build
   - deploy
 
-
-interpreter-dependencies:
-  stage: dependencies
-  image: node:lts
-  script:
-    - cd SOSML && npm ci
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - SOSML/node_modules
-
-
 webworker-dependencies:
   stage: dependencies
   image: node:lts
@@ -52,25 +40,11 @@ backend-dependencies:
     paths:
       - node_modules
 
-
-build-interpreter:
-  stage: modules
-  image: node:lts
-  script:
-    - cd SOSML && npm run dist
-  dependencies:
-    - interpreter-dependencies
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - SOSML/build/interpreter.min.js
-
-
 build-webworker:
   stage: modules
   image: node:lts
   script:
-    - cd SOSML-webworker && npm run build
+    - cd SOSML-webworker && npm run dist
   dependencies:
     - webworker-dependencies
   artifacts:
@@ -83,12 +57,10 @@ build-frontend:
   stage: build
   image: node:lts
   script:
-    - cp SOSML/build/interpreter.min.js SOSML-frontend/frontend/public/interpreter.js
     - cp SOSML-webworker/build/webworker.js SOSML-frontend/frontend/public/webworker.js
     - ./configure.sh
     - cd SOSML-frontend/frontend && npm run build
   dependencies:
-    - build-interpreter
     - build-webworker
     - frontend-dependencies
   artifacts:
