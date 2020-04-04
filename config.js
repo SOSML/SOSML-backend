@@ -28,6 +28,5 @@ module.exports = {
 
     // General options
     // the port the server is listening to
-    port : 8088
-
+    port : 8095
 }
