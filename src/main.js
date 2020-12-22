@@ -188,6 +188,24 @@ server.get('/api/list/',
     }
 );
 
+server.get('/api/wishlist/',
+    function (request, response, next) {
+        if (config.serveWishExamples) {
+            listDir(config.examplePath, path.resolve(config.wishPath, '.') + '/',
+                function(err, results) {
+                if (err) {
+                    console.log(err);
+                }
+                response.set('Content-Type', 'text/json');
+                response.end(JSON.stringify({codes: results}));
+            });
+        } else {
+            next();
+            return;
+        }
+    }
+);
+
 server.get('/code/:code',
     function (request, response, next) {
         if (config.serveExamples) {
@@ -205,6 +223,23 @@ server.get('/code/:code',
     }
 );
 
+server.get('/wish/:code',
+    function (request, response, next) {
+        if (config.serveWishExamples) {
+            const code = request.params.code;
+            console.log('Trying to read wish ' + request.params.code);
+            if (/^[\d\w](\/[\d\w\%]+|.[\d\w\%]+|[\d\w\%])*$/g.test(code)) {
+                outputFile(config.wishPath + code + ".json", response);
+            } else {
+                response.sendStatus(400);
+            }
+        } else {
+            next();
+            return;
+        }
+    }
+);
+
 server.use('/api',
     function (request, response) {
         response.sendStatus(404);
@@ -212,6 +247,12 @@ server.use('/api',
 )
 
 server.use('/code',
+    function (request, response) {
+        response.sendStatus(404);
+    }
+)
+
+server.use('/wish',
     function (request, response) {
         response.sendStatus(404);
     }
