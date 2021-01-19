@@ -36,7 +36,7 @@ esac
 # Write config file of frontend
 echo "export const SHARING_ENABLED = ${sharing};" > ./SOSML-frontend/frontend/src/config.tsx
 echo "export const SAMPLE_FILES_ENABLED = ${samples};" >> ./SOSML-frontend/frontend/src/config.tsx
-echo "export const WISHARING_ENABLED = ${wishing} && ${sharing};" > ./SOSML-frontend/frontend/src/config.tsx
+echo "export const WISHARING_ENABLED = ${wishing} && ${sharing};" >> ./SOSML-frontend/frontend/src/config.tsx
 echo "export const SAMPLE_WISHES_ENABLED = ${wishing} && ${samples};" >> ./SOSML-frontend/frontend/src/config.tsx
 echo "export const WISHING_ENABLED = ${wishing};" >> ./SOSML-frontend/frontend/src/config.tsx
 echo "export const WISHING_HIDDEN = ${wishing_hidden};" >> ./SOSML-frontend/frontend/src/config.tsx
