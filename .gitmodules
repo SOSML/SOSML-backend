@@ -1,8 +1,8 @@
 [submodule "SOSML-frontend"]
 	path = SOSML-frontend
     url = https://github.com/SOSML/SOSML-frontend.git
-    branch = master
+    branch = main
 [submodule "SOSML-webworker"]
 	path = SOSML-webworker
 	url = https://github.com/SOSML/SOSML-webworker.git
-    branch = master
+    branch = main
