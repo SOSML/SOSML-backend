@@ -45,13 +45,6 @@ function outputFile(name, response) {
     });
 }
 
-function outputWish(name, response) {
-    readFile(name, function (data) {
-        response.set('Content-Type', 'text/json');
-        response.end(data);
-    });
-}
-
 function listDir(dir, prefix, response) {
     var results = [];
     fs.readdir(dir,  function (err, items) {
@@ -166,7 +159,7 @@ server.get('/api/wishare/:code',
         if (config.serveSharing) {
             const code = request.params.code;
             if (/^[\d\w]+$/g.test(code)) {
-                outputWish(config.sharePath + code + ".wish.json", response);
+                outputFile(config.sharePath + code + ".wish.json", response);
             } else {
                 response.sendStatus(400);
             }
@@ -236,7 +229,7 @@ server.get('/api/wish/:code',
             const code = request.params.code;
             console.log('Trying to read wish ' + request.params.code);
             if (/^[\d\w](\/[\d\w\%]+|.[\d\w\%]+|[\d\w\%])*$/g.test(code)) {
-                outputWish(config.wishPath + code + ".wish.json", response);
+                outputFile(config.wishPath + code + ".wish.json", response);
             } else {
                 response.sendStatus(400);
             }
