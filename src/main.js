@@ -213,7 +213,7 @@ server.get('/api/wishlist/',
     }
 );
 
-server.get('/code/:code',
+server.get('/api/code/:code',
     function (request, response, next) {
         if (config.serveExamples) {
             const code = request.params.code;
@@ -230,7 +230,7 @@ server.get('/code/:code',
     }
 );
 
-server.get('/wish/:code',
+server.get('/api/wish/:code',
     function (request, response, next) {
         if (config.serveWishExamples) {
             const code = request.params.code;
@@ -248,18 +248,6 @@ server.get('/wish/:code',
 );
 
 server.use('/api',
-    function (request, response) {
-        response.sendStatus(404);
-    }
-)
-
-server.use('/code',
-    function (request, response) {
-        response.sendStatus(404);
-    }
-)
-
-server.use('/wish',
     function (request, response) {
         response.sendStatus(404);
     }
