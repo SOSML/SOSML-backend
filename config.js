@@ -4,6 +4,8 @@ module.exports = {
     serveSharing : true,
     // the path the shared files are placed into
     sharePath : "code/shares/",
+    // the path the shared wishes are placed into
+    wisharePath : "code/wishares/",
     // limit settings for sharing
     shareLimits : {
         // time window, in which IPs are being tracked in ms
@@ -19,6 +21,12 @@ module.exports = {
     serveExamples : true,
     // the path the provided examples are placed into
     examplePath : "code/examples/",
+
+    // Code example options
+    // determines if any wishes are served from this server
+    serveWishExamples : true,
+    // the path the provided wishes are placed into
+    wishPath : "code/wishes/",
 
     // Frontend options
     // determines if the frontend is being served from this server

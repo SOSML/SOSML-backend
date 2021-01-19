@@ -108,6 +108,36 @@ server.put('/api/share/', limiter,
     }
 );
 
+server.put('/api/wishare/', limiter,
+    // 'request' is the from the client sent http request
+    // 'response' is the answer from this server, which is still to be edited
+    // 'next' can be called so the rest of the function is skipped
+    function (request, response, next) {
+        // making sure sharing is enabled
+        if (config.serveSharing) {
+            const payload = request.body.code;
+            // The sent code is hashed, so it can get stored on the server
+            const hash = crypto.createHash('sha256').update(payload).digest("hex");
+            if (fs.existsSync(config.sharePath + hash + ".json")) {
+                response.set('Content-Type', 'text/plain');
+                response.end(hash);
+                return;
+            }
+            fs.writeFile(config.wisharePath + hash + ".json", payload, function (err) {
+                if (err) {
+                    return console.log(err);
+                }
+                console.log("A wish with hash " + hash + " was saved");
+                response.set('Content-Type', 'text/plain');
+                response.end(hash);
+            });
+        } else {
+            next();
+            return;
+        }
+    }
+);
+
 server.get('/api/share/:code',
     function (request, response, next) {
         if (config.serveSharing) {
@@ -124,10 +154,44 @@ server.get('/api/share/:code',
     }
 );
 
+server.get('/api/wishare/:code',
+    function (request, response, next) {
+        if (config.serveSharing) {
+            const code = request.params.code;
+            if (/^[\d\w]+$/g.test(code)) {
+                outputFile(config.sharePath + code + ".json", response);
+            } else {
+                response.sendStatus(400);
+            }
+        } else {
+            next();
+            return;
+        }
+    }
+);
+
 server.get('/api/list/',
     function (request, response, next) {
         if (config.serveExamples) {
             listDir(config.examplePath, path.resolve(config.examplePath, '.') + '/',
+                function(err, results) {
+                if (err) {
+                    console.log(err);
+                }
+                response.set('Content-Type', 'text/json');
+                response.end(JSON.stringify({codes: results}));
+            });
+        } else {
+            next();
+            return;
+        }
+    }
+);
+
+server.get('/api/wishlist/',
+    function (request, response, next) {
+        if (config.serveWishExamples) {
+            listDir(config.examplePath, path.resolve(config.wishPath, '.') + '/',
                 function(err, results) {
                 if (err) {
                     console.log(err);
@@ -159,6 +223,23 @@ server.get('/code/:code',
     }
 );
 
+server.get('/wish/:code',
+    function (request, response, next) {
+        if (config.serveWishExamples) {
+            const code = request.params.code;
+            console.log('Trying to read wish ' + request.params.code);
+            if (/^[\d\w](\/[\d\w\%]+|.[\d\w\%]+|[\d\w\%])*$/g.test(code)) {
+                outputFile(config.wishPath + code + ".json", response);
+            } else {
+                response.sendStatus(400);
+            }
+        } else {
+            next();
+            return;
+        }
+    }
+);
+
 server.use('/api',
     function (request, response) {
         response.sendStatus(404);
@@ -166,6 +247,12 @@ server.use('/api',
 )
 
 server.use('/code',
+    function (request, response) {
+        response.sendStatus(404);
+    }
+)
+
+server.use('/wish',
     function (request, response) {
         response.sendStatus(404);
     }
