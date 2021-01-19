@@ -7,9 +7,11 @@ echo Updating...
 rm -rf ~/server/
 mkdir ~/server/
 mkdir ~/server/code/
-mkdir ~/server/code/examples/
 cp -R ./* ~/server/
 ln -s ../../server-shares/ ~/server/code/shares
+ln -s ../../server-wishares/ ~/server/code/wishares
+ln -s ../../server-examples/ ~/server/code/examples
+ln -s ../../server-wishes/ ~/server/code/wishes
 echo Starting...
 systemctl --user start sosml-server.service
 echo Done.
