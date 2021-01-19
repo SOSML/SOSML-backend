@@ -45,6 +45,13 @@ function outputFile(name, response) {
     });
 }
 
+function outputWish(name, response) {
+    readFile(name, function (data) {
+        response.set('Content-Type', 'text/json');
+        response.end(data);
+    });
+}
+
 function listDir(dir, prefix, response) {
     var results = [];
     fs.readdir(dir,  function (err, items) {
@@ -118,12 +125,12 @@ server.put('/api/wishare/', limiter,
             const payload = request.body.code;
             // The sent code is hashed, so it can get stored on the server
             const hash = crypto.createHash('sha256').update(payload).digest("hex");
-            if (fs.existsSync(config.sharePath + hash + ".json")) {
+            if (fs.existsSync(config.sharePath + hash + ".wish..json")) {
                 response.set('Content-Type', 'text/plain');
                 response.end(hash);
                 return;
             }
-            fs.writeFile(config.wisharePath + hash + ".json", payload, function (err) {
+            fs.writeFile(config.wisharePath + hash + ".wish.json", payload, function (err) {
                 if (err) {
                     return console.log(err);
                 }
@@ -159,7 +166,7 @@ server.get('/api/wishare/:code',
         if (config.serveSharing) {
             const code = request.params.code;
             if (/^[\d\w]+$/g.test(code)) {
-                outputFile(config.sharePath + code + ".json", response);
+                outputWish(config.sharePath + code + ".wish.json", response);
             } else {
                 response.sendStatus(400);
             }
@@ -191,7 +198,7 @@ server.get('/api/list/',
 server.get('/api/wishlist/',
     function (request, response, next) {
         if (config.serveWishExamples) {
-            listDir(config.examplePath, path.resolve(config.wishPath, '.') + '/',
+            listDir(config.wishPath, path.resolve(config.wishPath, '.') + '/',
                 function(err, results) {
                 if (err) {
                     console.log(err);
@@ -229,7 +236,7 @@ server.get('/wish/:code',
             const code = request.params.code;
             console.log('Trying to read wish ' + request.params.code);
             if (/^[\d\w](\/[\d\w\%]+|.[\d\w\%]+|[\d\w\%])*$/g.test(code)) {
-                outputFile(config.wishPath + code + ".json", response);
+                outputWish(config.wishPath + code + ".wish.json", response);
             } else {
                 response.sendStatus(400);
             }
