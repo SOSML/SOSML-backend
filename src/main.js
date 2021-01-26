@@ -118,7 +118,7 @@ server.put('/api/wishare/', limiter,
             const payload = request.body.code;
             // The sent code is hashed, so it can get stored on the server
             const hash = crypto.createHash('sha256').update(payload).digest("hex");
-            if (fs.existsSync(config.sharePath + hash + ".wish..json")) {
+            if (fs.existsSync(config.wisharePath + hash + ".wish..json")) {
                 response.set('Content-Type', 'text/plain');
                 response.end(hash);
                 return;
@@ -159,7 +159,7 @@ server.get('/api/wishare/:code',
         if (config.serveSharing) {
             const code = request.params.code;
             if (/^[\d\w]+$/g.test(code)) {
-                outputFile(config.sharePath + code + ".wish.json", response);
+                outputFile(config.wisharePath + code + ".wish.json", response);
             } else {
                 response.sendStatus(400);
             }
